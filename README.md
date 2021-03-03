@@ -1,6 +1,6 @@
 # skye
 
-[![Lang](https://img.shields.io/badge/rust-%23000000.svg?&style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org/) [![Build](https://github.com/kinddevil/skye/actions/workflows/ci-workflow.yml/badge.svg)](https://github.com/kinddevil/skye/actions) [![codecov](https://codecov.io/gh/kinddevil/cloud-kitchen/branch/develop/graph/badge.svg?token=FT8YWY4I0Z)](https://codecov.io/gh/kinddevil/cloud-kitchen) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+[![Lang](https://img.shields.io/badge/lang-rust-brightgreen)](https://www.rust-lang.org/) [![Build](https://github.com/kinddevil/skye/actions/workflows/ci-workflow.yml/badge.svg)](https://github.com/kinddevil/skye/actions) [![codecov](https://codecov.io/gh/kinddevil/cloud-kitchen/branch/develop/graph/badge.svg?token=FT8YWY4I0Z)](https://codecov.io/gh/kinddevil/cloud-kitchen) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 
 Skye is a backend for Skye project
 
