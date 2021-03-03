@@ -8,9 +8,11 @@ use log::{error, info};
 use serde::{Deserialize, Serialize};
 use std::error;
 use std::time::Duration;
+
 const APPID: &str = "wx4c70a4fd3673d59d";
 const APPSECRET: &str = "cf2cebdf2a0eac87e6bb8fc606e209db";
 const GRANT_TYPE: &str = "authorization_code";
+
 #[derive(Deserialize, Serialize, Debug)]
 pub struct AuthCode {
     code: String,
@@ -18,11 +20,11 @@ pub struct AuthCode {
 
 #[derive(Deserialize, Serialize, Debug, Default)]
 struct WxSession {
-    openid: String,
-    session_key: String,
-    unionid: String,
-    errcode: i32,
-    errmsg: String,
+    openid: Option<String>,
+    session_key: Option<String>,
+    unionid: Option<String>,
+    errcode: Option<i32>,
+    errmsg: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Default)]
@@ -74,23 +76,21 @@ pub async fn wx_login(info: web::Query<AuthCode>, _req: HttpRequest) -> HttpResp
 }
 
 async fn get_session(code: &str) -> Result<WxSession, ClientErrors> {
-    let client = Client::default();
-    // let client = Client::new();
+    let client = Client::new();
 
     let url = format!(
         "https://api.weixin.qq.com/sns/jscode2session?appid={}&secret={}&js_code={}&grant_type={}",
         APPID, APPSECRET, code, GRANT_TYPE
     );
+    // let url = format!("https://jsonplaceholder.typicode.com/todos/{}", code);
     info!("Login: {}", url);
 
     let mut res = client
-        // .get(format!("https://jsonplaceholder.typicode.com/todos/{}", code))
         // .get("https://www.amazon.com/error")
         .get(url)
-        .timeout(Duration::from_secs(12))
+        .timeout(Duration::from_secs(2))
         .send()
-        .await
-        .map_err(|e| ClientErrors::from(e))?;
+        .await?;
 
     let bytes = res.body().await?;
     match res.status() {
