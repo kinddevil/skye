@@ -1,0 +1,64 @@
+name: build skye
+on: [push]
+
+jobs:
+  # check:
+  #   name: validate
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
+
+  #     - name: Install stable toolchain
+  #       uses: actions-rs/toolchain@v1
+  #       with:
+  #         toolchain: stable
+  #         override: true
+
+  #     - name: Run cargo-tarpaulin
+  #       uses: actions-rs/tarpaulin@v0.1
+  #       with:
+  #         version: '0.10.2'
+  #         args: '-- --test-threads 2'
+
+  #     - name: Upload coverage to Codecov  
+  #       uses: codecov/codecov-action@v1
+  #       with:
+  #         token: ${{ secrets.CODECOV_TOKEN }}
+  #         file: ./cobertura.xml
+  #         flags: unittests
+  #         name: skye
+  #         # yml: ./codecov.yml
+  #         fail_ci_if_error: true #optional (default = false)
+
+  build:
+    name: build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+  
+  linux_arm7:
+    name: Linux ARMv7
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: armv7-unknown-linux-gnueabihf
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: test
+      - uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --target armv7-unknown-linux-gnueabihf
