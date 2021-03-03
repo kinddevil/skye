@@ -1,6 +1,5 @@
 use actix_http::error::PayloadError;
-use actix_http::http::{Error, StatusCode};
-use actix_web::client::ClientRequest;
+use actix_http::http::StatusCode;
 use actix_web::client::{Client, SendRequestError};
 
 use actix_web::{web, HttpRequest, HttpResponse};
@@ -9,9 +8,9 @@ use log::{error, info};
 use serde::{Deserialize, Serialize};
 use std::error;
 use std::time::Duration;
-// const APPID: &str = "wx4c70a4fd3673d59d";
-// const APPSECRET: &str = "cf2cebdf2a0eac87e6bb8fc606e209db";
-// const GRANT_TYPE: &str = "authorization_code";
+const APPID: &str = "wx4c70a4fd3673d59d";
+const APPSECRET: &str = "cf2cebdf2a0eac87e6bb8fc606e209db";
+const GRANT_TYPE: &str = "authorization_code";
 #[derive(Deserialize, Serialize, Debug)]
 pub struct AuthCode {
     code: String,
@@ -26,12 +25,6 @@ struct WxSession {
     errmsg: String,
 }
 
-impl WxSession {
-    pub fn new() -> Self {
-        Default::default()
-    }
-}
-
 #[derive(Deserialize, Serialize, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 struct MockJson {
@@ -41,11 +34,6 @@ struct MockJson {
     completed: bool,
 }
 
-impl MockJson {
-    pub fn new() -> Self {
-        Default::default()
-    }
-}
 #[derive(Debug, Display)]
 #[display(fmt = "client error: {} - {} \n {:?}", name, status, msg)]
 pub struct ClientError {
@@ -66,7 +54,7 @@ pub enum ClientErrors {
 
 impl std::error::Error for ClientErrors {}
 
-pub async fn wx_login(info: web::Query<AuthCode>, req: HttpRequest) -> HttpResponse {
+pub async fn wx_login(info: web::Query<AuthCode>, _req: HttpRequest) -> HttpResponse {
     match get_session(&info.code).await {
         Ok(data) => {
             info!("Get data: {:?}", data);
@@ -85,18 +73,21 @@ pub async fn wx_login(info: web::Query<AuthCode>, req: HttpRequest) -> HttpRespo
     }
 }
 
-async fn get_session(code: &str) -> Result<MockJson, ClientErrors> {
+async fn get_session(code: &str) -> Result<WxSession, ClientErrors> {
     let client = Client::default();
     // let client = Client::new();
 
+    let url = format!(
+        "https://api.weixin.qq.com/sns/jscode2session?appid={}&secret={}&js_code={}&grant_type={}",
+        APPID, APPSECRET, code, GRANT_TYPE
+    );
+    info!("Login: {}", url);
+
     let mut res = client
-        .get(format!("https://jsonplaceholder.typicode.com/todos/{}", code))
+        // .get(format!("https://jsonplaceholder.typicode.com/todos/{}", code))
         // .get("https://www.amazon.com/error")
-        // .get(format!(
-        // "https://api.weixin.qq.com/sns/jscode2session?appid={}&secret={}&js_code={}&grant_type={}",
-        // APPID, APPSECRET, info.code, GRANT_TYPE
-        // ))
-        .timeout(Duration::from_secs(2))
+        .get(url)
+        .timeout(Duration::from_secs(12))
         .send()
         .await
         .map_err(|e| ClientErrors::from(e))?;
@@ -104,13 +95,9 @@ async fn get_session(code: &str) -> Result<MockJson, ClientErrors> {
     let bytes = res.body().await?;
     match res.status() {
         StatusCode::OK => {
-            // let session: WxSession = match serde_json::from_slice(&ret) {
-            //     Ok(s) => s,
-            //     Err(e) => WxSession::new(),
-            // };
-            // println!("session {:?}", session);
-            let data: MockJson = serde_json::from_slice(&bytes)?;
-            info!("mock data {:?}", data);
+            let data: WxSession = serde_json::from_slice(&bytes)?;
+            // let data: MockJson = serde_json::from_slice(&bytes)?;
+            info!("Get data {:?}", data);
             Ok(data)
         }
         status => Err(ClientErrors::from(ClientError { name: "http error", status, msg: "" })),
