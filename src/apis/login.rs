@@ -95,6 +95,7 @@ async fn get_session(code: &str) -> Result<WxSession, ClientErrors> {
     let bytes = res.body().await?;
     match res.status() {
         StatusCode::OK => {
+            info!("get bytes {:?}", std::str::from_utf8(&bytes));
             let data: WxSession = serde_json::from_slice(&bytes)?;
             // let data: MockJson = serde_json::from_slice(&bytes)?;
             info!("Get data {:?}", data);
