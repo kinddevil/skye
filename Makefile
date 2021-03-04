@@ -25,9 +25,10 @@ build:
 	cargo build
 
 cov:
-	docker run --security-opt seccomp=unconfined -v "${PWD}:/volume" xd009642/tarpaulin cargo tarpaulin \
-	 --out Xml --output-dir .cov \
-	 && venv/bin/pycobertura show --format html --output .cov/coverage.html .cov/cobertura.xml
+	cargo build && cargo test \
+	 && export CARGO_INCREMENTAL=0 && export RUSTFLAGS="-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort" \
+	 && grcov . -s . --binary-path ./target/debug/ -t html --branch --ignore-not-existing -o ./target/debug/coverage/ \
+	 && open ./target/debug/coverage/index.html
 
 clippy:
 	cargo clippy
