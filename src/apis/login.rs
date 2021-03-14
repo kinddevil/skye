@@ -60,6 +60,7 @@ pub async fn wx_login(info: web::Query<AuthCode>, _req: HttpRequest) -> HttpResp
     match get_session(&info.code).await {
         Ok(data) => {
             info!("Get data: {:?}", data);
+            // TODO save cache
             HttpResponse::Ok().body("Hello")
         }
         Err(e) => match e {
