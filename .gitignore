@@ -11,3 +11,5 @@ Cargo.lock
 default.profraw
 kcov-v36
 coveralls.json
+log
+*.log
