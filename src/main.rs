@@ -28,7 +28,8 @@ async fn main() -> std::io::Result<()> {
             .wrap(middlewares::auth::Auth::new())
             .wrap(Logger::default())
             .service(web::resource("/v1/wx_login").route(web::post().to(apis::login::wx_login)))
-            .service(web::resource("/v1/comment").route(web::post().to(apis::comment::comment)))
+            .service(web::resource("/v1/comments").route(web::post().to(apis::comment::comment)))
+            .service(web::resource("/v1/comments/{id}").route(web::post().to(apis::comment::comments)))
     })
     .bind(format!("127.0.0.1:{}", port))?
     .run()

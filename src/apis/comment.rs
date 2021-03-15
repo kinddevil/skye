@@ -16,6 +16,11 @@ pub async fn comment(info: web::Json<Comment>, _req: HttpRequest) -> HttpRespons
     HttpResponse::build(StatusCode::OK).body("ok")
 }
 
+pub async fn comments(info: web::Path<String>, _req: HttpRequest) -> HttpResponse {
+    info!("{:?}", info);
+    HttpResponse::build(StatusCode::OK).body("ok")
+}
+
 #[cfg(test)]
 mod login_tests {
     use super::*;
